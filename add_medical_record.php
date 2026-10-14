@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db_connect.php';
+$conn = $pdo;
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
