@@ -5,6 +5,25 @@
  * via Environment Variables configured in Vercel or .env.
  */
 
+// Automatically load .env file if present
+$envFile = __DIR__ . '/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || $trimmed[0] === '#') continue;
+        if (strpos($trimmed, '=') !== false) {
+            list($key, $val) = explode('=', $trimmed, 2);
+            $key = trim($key);
+            $val = trim($val, " \t\n\r\0\x0B\"'");
+            if (!getenv($key)) {
+                putenv("$key=$val");
+                $_ENV[$key] = $val;
+            }
+        }
+    }
+}
+
 $host     = getenv('DB_HOST')     ?: (getenv('MYSQLHOST')     ?: ($_ENV['DB_HOST'] ?? 'localhost'));
 $username = getenv('DB_USER')     ?: (getenv('MYSQLUSER')     ?: ($_ENV['DB_USER'] ?? 'root'));
 $password = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : (getenv('DB_PASS') !== false ? getenv('DB_PASS') : (getenv('MYSQLPASSWORD') !== false ? getenv('MYSQLPASSWORD') : ($_ENV['DB_PASSWORD'] ?? ($_ENV['DB_PASS'] ?? ''))));
